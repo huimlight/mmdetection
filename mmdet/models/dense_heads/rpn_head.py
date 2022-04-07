@@ -228,7 +228,7 @@ class RPNHead(AnchorHead):
                 ids = ids[valid_mask]
 
         if proposals.numel() > 0:
-            dets, _ = batched_nms(proposals, scores, ids, cfg.nms)
+            dets, _ = batched_nms(proposals, scores, ids, scores, cfg.nms)
         else:
             return proposals.new_zeros(0, 5)
 

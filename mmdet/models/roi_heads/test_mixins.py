@@ -131,6 +131,7 @@ class BBoxTestMixin:
                 det_bbox, det_label = self.bbox_head.get_bboxes(
                     rois[i],
                     cls_score[i],
+                    ROI_score[i],
                     bbox_pred[i],
                     img_shapes[i],
                     scale_factors[i],

@@ -7,6 +7,7 @@ from mmdet.core.bbox.iou_calculators import bbox_overlaps
 
 def multiclass_nms(multi_bboxes,
                    multi_scores,
+                   ROI_score,
                    score_thr,
                    nms_cfg,
                    max_num=-1,
@@ -41,6 +42,7 @@ def multiclass_nms(multi_bboxes,
             multi_scores.size(0), num_classes, 4)
 
     scores = multi_scores[:, :-1]
+    ROI_score = ROI_score[:, :-1]
 
     labels = torch.arange(num_classes, dtype=torch.long, device=scores.device)
     labels = labels.view(1, -1).expand_as(scores)
@@ -48,6 +50,7 @@ def multiclass_nms(multi_bboxes,
     bboxes = bboxes.reshape(-1, 4)
     scores = scores.reshape(-1)
     labels = labels.reshape(-1)
+    ROI_score = ROI_score.reshape(-1)
 
     if not torch.onnx.is_in_onnx_export():
         # NonZero not supported  in TensorRT
@@ -65,7 +68,7 @@ def multiclass_nms(multi_bboxes,
     if not torch.onnx.is_in_onnx_export():
         # NonZero not supported  in TensorRT
         inds = valid_mask.nonzero(as_tuple=False).squeeze(1)
-        bboxes, scores, labels = bboxes[inds], scores[inds], labels[inds]
+        bboxes, scores, labels, ROI_score = bboxes[inds], scores[inds], labels[inds], ROI_score[inds]
     else:
         # TensorRT NMS plugin has invalid output filled with -1
         # add dummy data to make detection output correct.
@@ -83,7 +86,7 @@ def multiclass_nms(multi_bboxes,
         else:
             return dets, labels
 
-    dets, keep = batched_nms(bboxes, scores, labels, nms_cfg)
+    dets, keep = batched_nms(bboxes, scores, labels, ROI_score, nms_cfg)
 
     if max_num > 0:
         dets = dets[:max_num]

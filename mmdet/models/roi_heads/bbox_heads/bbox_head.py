@@ -316,6 +316,7 @@ class BBoxHead(BaseModule):
     def get_bboxes(self,
                    rois,
                    cls_score,
+                   ROI_score,
                    bbox_pred,
                    img_shape,
                    scale_factor,
@@ -374,7 +375,7 @@ class BBoxHead(BaseModule):
         if cfg is None:
             return bboxes, scores
         else:
-            det_bboxes, det_labels = multiclass_nms(bboxes, scores,
+            det_bboxes, det_labels = multiclass_nms(bboxes, scores, ROI_score,
                                                     cfg.score_thr, cfg.nms,
                                                     cfg.max_per_img)
 
