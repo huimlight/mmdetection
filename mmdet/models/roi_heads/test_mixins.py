@@ -109,6 +109,11 @@ class BBoxTestMixin:
         else:
             bbox_pred = (None, ) * len(proposals)
 
+        if True:
+            proposal_score = [proposal[:, -1] for proposal in proposals]
+            ROI_score = [score.softmax(-1) for score in cls_score]
+            cls_score = [(s * p[:, None]) ** 0.5
+                         for s, p in zip(ROI_score, proposal_score)]
         # apply bbox post-processing to each image individually
         det_bboxes = []
         det_labels = []
